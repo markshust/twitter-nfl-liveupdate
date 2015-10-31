@@ -18,5 +18,5 @@ Set the following environment variables, and then run `node index.js`.
 
 ## Related Projects
 
-- <a href="https://github.com/markoshust/firebase-nfl-liveupdate" target="_blank">`https://github.com/markoshust/firebase-nfl-liveupdate`</a>
+- <a href="https://github.com/markoshust/firebase-nfl-liveupdate">`https://github.com/markoshust/firebase-nfl-liveupdate`</a>
 
