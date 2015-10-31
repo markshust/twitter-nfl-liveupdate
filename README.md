@@ -16,3 +16,7 @@ Set the following environment variables, and then run `node index.js`.
 - `TWITTER_ACCESS_TOKEN`
 - `TWITTER_ACCESS_TOKEN_SECRET`
 
+## Related Projects
+
+- <a href="https://github.com/markoshust/firebase-nfl-liveupdate" target="_blank">`https://github.com/markoshust/firebase-nfl-liveupdate`</a>
+
