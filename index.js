@@ -1,11 +1,10 @@
 require('dotenv').config({silent: true});
 
 if (! process.env.FIREBASE_AUTH_TOKEN) {
-  console.log("You must supply FIREBASE_AUTH_TOKEN to run this script.");
+  console.log('You must supply FIREBASE_AUTH_TOKEN to run this script.');
   process.exit(1);
 }
 
-const http = require('http');
 const Firebase = require('firebase');
 const fbRef = new Firebase('https://nfl-liveupdate.firebaseIO.com/');
 const Twitter = require('twitter');
@@ -37,49 +36,64 @@ fbRef.authWithCustomToken(process.env.FIREBASE_AUTH_TOKEN, function(err, res) {
 
         if (! val || ! oldVal) return;
 
-        var status = "";
+        var status = '';
+        var quarterStatus = '';
+        var justScoredStatus = '';
+        var scoreDiff = 0;
         var scoreStr = val.away_team + ' ' + val.away_score
           + ', ' + val.home_team + ' ' + val.home_score;
+        var statusHeader = '#NFL LiveUpdate:\n';
 
         childData[snap.key()] = val;
 
         if ('quarter' in oldVal
-          && oldVal.quarter != "F" 
+          && oldVal.quarter != 'F'
           && val.quarter != oldVal.quarter
-        ) { 
+        ) {
           switch (val.quarter) {
-            case '1': status = 'The ' + val.away_team + ' vs ' + val.home_team
+            case '1': quarterStatus = 'The ' + val.away_team + ' vs ' + val.home_team
               + ' game is now underway!'; scoreStr = ''; break;
-            case '2': status = 'At the end of 1, the score is '; break;
-            case 'H': status = 'At halftime, the score is '; break;
-            case '4': status = 'After 3, the score is ' ; break;
-            case 'F': status = 'The final score is '; break;
-            case 'O': status = 'At the end of regulation, the score is '; break;
-          }   
+            case '2': quarterStatus = 'At the end of 1, the score is '; break;
+            case 'H': quarterStatus = 'At halftime, the score is '; break;
+            case '4': quarterStatus = 'After 3, the score is ' ; break;
+            case 'F': quarterStatus = 'The final score is '; break;
+            case 'O': quarterStatus = 'At the end of regulation, the score is '; break;
+          }
 
-          if (status) {
-            status = '#NFL LiveUpdate:\n' + status + scoreStr;
-          }   
-        } else if (
-          'away_score' in oldVal
+          if (quarterStatus) quarterStatus += scoreStr;
+        }
+
+        if ('away_score' in oldVal
           && 'home_score' in oldVal
         ) {
           if (val.away_score > oldVal.away_score) {
-            var scoreDiff = val.away_score - oldVal.away_score;
+            scoreDiff = val.away_score - oldVal.away_score;
 
-            status = val.away_team + ' just scored ' + scoreDiff + '!\n';
+            justScoredStatus = val.away_team + ' just scored ' + scoreDiff + '!\n';
           } else if (val.home_score > oldVal.home_score) {
-            var scoreDiff = val.home_score - oldVal.home_score;
+            scoreDiff = val.home_score - oldVal.home_score;
 
-            status = val.home_team + ' just scored ' + scoreDiff  + '!\n';
-          }
-
-          if (status) {
-            status = '#NFL LiveUpdate:\n' + status + 'The new score is ' + scoreStr;
+            justScoredStatus = val.home_team + ' just scored ' + scoreDiff  + '!\n';
           }
         }
 
-        if (status) {
+        if (justScoredStatus || quarterStatus) {
+          status = statusHeader;
+
+          switch (true) {
+            case justScoredStatus && quarterStatus:
+              status += justScoredStatus + quarterStatus;
+              break;
+
+            case justScoredStatus:
+              status += justScoredStatus + 'The new score is ' + scoreStr;
+              break;
+
+            case quarterStatus:
+              status += quarterStatus;
+              break;
+          }
+
           twitterClient.post('statuses/update', {status: status}, function(error, tweet){
             if (error) {
               console.log(error);
