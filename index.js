@@ -60,7 +60,9 @@ fbRef.authWithCustomToken(process.env.FIREBASE_AUTH_TOKEN, function(err, res) {
             case 'O': quarterStatus = 'At the end of regulation, the score is '; break;
           }
 
-          if (quarterStatus) quarterStatus += scoreStr;
+          if (quarterStatus) {
+            quarterStatus += scoreStr;
+          }
         }
 
         if ('away_score' in oldVal
@@ -80,18 +82,12 @@ fbRef.authWithCustomToken(process.env.FIREBASE_AUTH_TOKEN, function(err, res) {
         if (justScoredStatus || quarterStatus) {
           status = statusHeader;
 
-          switch (true) {
-            case justScoredStatus && quarterStatus:
-              status += justScoredStatus + quarterStatus;
-              break;
-
-            case justScoredStatus:
-              status += justScoredStatus + 'The new score is ' + scoreStr;
-              break;
-
-            case quarterStatus:
-              status += quarterStatus;
-              break;
+          if (justScoredStatus && quarterStatus) {
+            status += justScoredStatus + quarterStatus;
+          } else if (justScoredStatus) {
+            status += justScoredStatus + 'The new score is ' + scoreStr;
+          } else if (quarterStatus) {
+            status += quarterStatus;
           }
 
           twitterClient.post('statuses/update', {status: status}, function(error, tweet){
@@ -106,4 +102,3 @@ fbRef.authWithCustomToken(process.env.FIREBASE_AUTH_TOKEN, function(err, res) {
     });
   }
 });
-
