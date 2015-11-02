@@ -36,6 +36,8 @@ fbRef.authWithCustomToken(process.env.FIREBASE_AUTH_TOKEN, function(err, res) {
 
         if (! val || ! oldVal) return;
 
+        childData[snap.key()] = val;
+
         var status = '';
         var quarterStatus = '';
         var justScoredStatus = '';
@@ -44,8 +46,6 @@ fbRef.authWithCustomToken(process.env.FIREBASE_AUTH_TOKEN, function(err, res) {
           + ', ' + val.home_team + ' ' + val.home_score;
         var statusHeader = '#NFL LiveUpdate:\n';
 
-        childData[snap.key()] = val;
-
         if ('quarter' in oldVal
           && oldVal.quarter != 'F'
           && val.quarter != oldVal.quarter
@@ -53,11 +53,12 @@ fbRef.authWithCustomToken(process.env.FIREBASE_AUTH_TOKEN, function(err, res) {
           switch (val.quarter) {
             case '1': quarterStatus = 'The ' + val.away_team + ' vs ' + val.home_team
               + ' game is now underway!'; scoreStr = ''; break;
-            case '2': quarterStatus = 'At the end of 1, the score is '; break;
-            case 'H': quarterStatus = 'At halftime, the score is '; break;
-            case '4': quarterStatus = 'After 3, the score is ' ; break;
+            // @TODO The following if checks are a hack to account for bad API. Will be fixed soon.
+            case '2': if (oldVal.quarter == '1') quarterStatus = 'At the end of 1, the score is '; break;
+            case 'H': if (oldVal.quarter == '2') quarterStatus = 'At halftime, the score is '; break;
+            case '4': if (oldVal.quarter == '3') quarterStatus = 'After 3, the score is ' ; break;
+            case 'O': if (oldVal.quarter == '4') quarterStatus = 'At the end of regulation, the score is '; break;
             case 'F': quarterStatus = 'The final score is '; break;
-            case 'O': quarterStatus = 'At the end of regulation, the score is '; break;
           }
 
           if (quarterStatus) {
