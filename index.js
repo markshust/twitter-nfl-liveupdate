@@ -53,11 +53,10 @@ fbRef.authWithCustomToken(process.env.FIREBASE_AUTH_TOKEN, function(err, res) {
           switch (val.quarter) {
             case '1': quarterStatus = 'The ' + val.away_team + ' vs ' + val.home_team
               + ' game is now underway!'; scoreStr = ''; break;
-            // @TODO The following if checks are a hack to account for bad API. Will be fixed soon.
-            case '2': if (oldVal.quarter == '1') quarterStatus = 'At the end of 1, the score is '; break;
-            case 'H': if (oldVal.quarter == '2') quarterStatus = 'At halftime, the score is '; break;
-            case '4': if (oldVal.quarter == '3') quarterStatus = 'After 3, the score is ' ; break;
-            case 'O': if (oldVal.quarter == '4') quarterStatus = 'At the end of regulation, the score is '; break;
+            case '2': quarterStatus = 'At the end of 1, the score is '; break;
+            case 'H': quarterStatus = 'At halftime, the score is '; break;
+            case '4': quarterStatus = 'After 3, the score is '; break;
+            case 'O': quarterStatus = 'At the end of regulation, the score is '; break;
             case 'F': quarterStatus = 'The final score is '; break;
           }
 
